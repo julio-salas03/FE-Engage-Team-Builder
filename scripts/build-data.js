@@ -30,8 +30,12 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
 
     const getImgName = (img) => img.match(/([^/]*$)/g)[0].toLowerCase().replace(/_/g, '-')
 
-    for (let index = 1; index <= 2; index++) {
-        $(`table:eq(${index})`).find("tr:not(:first)").each((_, el) => {
+    for (let index = 1; index <= 4; index++) {
+        /**
+         * This allows to retreive the dlc emblems data
+         */
+        const realIndex = index > 2 ? index + 4 : index
+        $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
             const data = $(el).text().trim().split("\n")
             const img = $(el).find("img").attr("src")
             const bond = data[3].split(" ")
@@ -60,7 +64,6 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
         const imgName = getImgName(img)
         const imgPath = `${imgBasePath}/class/${imgName}`
         downloadImage(img, imgPath)
-
         classSkills.push({ name: data[0], description: data[1], class: data[2], img: imgPath })
     })
 
