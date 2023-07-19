@@ -49,14 +49,17 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
         })
     }
 
-    $(`table:eq(3)`).find("tr:not(:first)").each((_, el) => {
-        const data = $(el).text().trim().split("\n")
-        const img = $(el).find("img").attr("src")
-        const imgName = getImgName(img)
-        const imgPath = `${imgBasePath}/personal/${imgName}`
-        downloadImage(img, imgPath)
-        personalSkills.push({ name: data[0], description: data[1], character: data[2], img: imgPath })
-    })
+    for (let index = 3; index <= 4; index++) {
+        const realIndex = index === 3 ? 3 : 3 + 6
+        $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
+            const data = $(el).text().trim().split("\n")
+            const img = $(el).find("img").attr("src")
+            const imgName = getImgName(img)
+            const imgPath = `${imgBasePath}/personal/${imgName}`
+            downloadImage(img, imgPath)
+            personalSkills.push({ name: data[0], description: data[1], character: data[2], img: imgPath })
+        })
+    }
 
     $(`table:eq(4)`).find("tr:not(:first)").each((_, el) => {
         const data = $(el).text().trim().split("\n")
