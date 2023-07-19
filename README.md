@@ -2,5 +2,5 @@ This is a team builder for Fire Emblem Engage, which aims to help you to have a 
 
 - UI for character, class, weapons and emblems selection
 - Resource calculator (e.g. SP and bond fragments)
-- Exportable CSV data to preserve your teams
+- Ability to save your teams via URL or exportable CSV
 - Damage calculator
