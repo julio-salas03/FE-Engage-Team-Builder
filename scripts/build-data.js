@@ -49,8 +49,11 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
         })
     }
 
-    for (let index = 3; index <= 4; index++) {
-        const realIndex = index === 3 ? 3 : 3 + 6
+    const personalSkilsStartingIndex = 3
+
+
+    for (let index = personalSkilsStartingIndex; index <= personalSkilsStartingIndex + 1; index++) {
+        const realIndex = index === personalSkilsStartingIndex ? personalSkilsStartingIndex : personalSkilsStartingIndex + 6
         $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
             const data = $(el).text().trim().split("\n")
             const img = $(el).find("img").attr("src")
@@ -61,14 +64,19 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
         })
     }
 
-    $(`table:eq(4)`).find("tr:not(:first)").each((_, el) => {
-        const data = $(el).text().trim().split("\n")
-        const img = $(el).find("img").attr("src")
-        const imgName = getImgName(img)
-        const imgPath = `${imgBasePath}/class/${imgName}`
-        downloadImage(img, imgPath)
-        classSkills.push({ name: data[0], description: data[1], class: data[2], img: imgPath })
-    })
+    const classSkilsStartingIndex = 4
+
+    for (let index = classSkilsStartingIndex; index <= classSkilsStartingIndex + 1; index++) {
+        const realIndex = index === classSkilsStartingIndex ? classSkilsStartingIndex : classSkilsStartingIndex + 6
+        $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
+            const data = $(el).text().trim().split("\n")
+            const img = $(el).find("img").attr("src")
+            const imgName = getImgName(img)
+            const imgPath = `${imgBasePath}/class/${imgName}`
+            downloadImage(img, imgPath)
+            classSkills.push({ name: data[0], description: data[1], class: data[2], img: imgPath })
+        })
+    }
 
     fs.writeFile("./data/personal-skills.json", JSON.stringify(personalSkills), () => null)
     fs.writeFile("./data/class-skills.json", JSON.stringify(classSkills), () => null)
