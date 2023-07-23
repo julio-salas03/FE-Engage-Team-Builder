@@ -19,6 +19,15 @@ const downloadImage = (url, image_path) => {
     );
 }
 
+const buildNumericStat = (stat) => {
+    if (typeof stat !== "string") throw new Error(`buildNumericStat expects stat parameter to be a string. ${typeof stat} provided`)
+    const numberStat = Number(stat)
+    return !Number.isNaN(numberStat) ? numberStat : 0
+}
+
+const getImgName = (img) => img.match(/([^/]*$)/g)[0].toLowerCase().replace(/_/g, '-')
+
+
 axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) => {
     const $ = cheerio.load(html.data)
     const inheritableSkills = []
@@ -28,7 +37,6 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
     const imgBasePath = "./assets/base/skills"
 
 
-    const getImgName = (img) => img.match(/([^/]*$)/g)[0].toLowerCase().replace(/_/g, '-')
 
     for (let index = 1; index <= 4; index++) {
         /**
@@ -82,4 +90,32 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
     fs.writeFile("./data/class-skills.json", JSON.stringify(classSkills), () => null)
     fs.writeFile("./data/inheritable-skills.json", JSON.stringify(inheritableSkills), () => null)
     fs.writeFile("./data/syncho-skills.json", JSON.stringify(synchoSkills), () => null)
+})
+
+axios.get("https://serenesforest.net/engage/somniel/engraving/").then((html) => {
+    const $ = cheerio.load(html.data)
+    const engravings = []
+    const imgBasePath = "./assets/base"
+    $("table tr:not(:first)").each((_, el) => {
+        const data = $(el).text().trim().split("\n")
+        if (data[1] !== "Emblem") {
+            const img = $(el).find("img").attr("src")
+            const imgName = getImgName(img)?.replace("engrave-", "")
+            const imgPath = `${imgBasePath}/engravings/${imgName}`
+            downloadImage(img, imgPath)
+            engravings.push({
+                name: data[1],
+                emblem: data[0],
+                mt: buildNumericStat(data[2]),
+                hit: buildNumericStat(data[3]),
+                crit: buildNumericStat(data[4]),
+                wt: buildNumericStat(data[5]),
+                avo: buildNumericStat(data[6]),
+                ddg: buildNumericStat(data[7]),
+                img: imgPath
+            })
+        }
+
+    })
+    fs.writeFile("./data/engravings.json", JSON.stringify(engravings), () => null)
 })
