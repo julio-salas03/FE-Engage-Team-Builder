@@ -158,3 +158,106 @@ for (const weapon of basicWeapons) {
         fs.writeFile(`./data/${weapon}.json`, JSON.stringify(list), () => null)
     })
 }
+
+
+const getCharactersData = async () => {
+    const characterNames = ["Alear", "Vander", "Clanne", "Framme", "Alfred", "Etie", "Boucheron", "Celine", "Chloe", "Louis", "Jean", "Yunaka", "Anna", "Alcryst", "Citrinne", "Lapis", "Diamant", "Amber", "Jade", "Ivy", "Kagetsu", "Zelkov", "Fogado", "Pandreo", "Bunet", "Timerra", "Panette", "Merrin", "Hortensia", "Seadall", "Rosado", "Goldmary", "Lindon", "Saphir", "Mauvier", "Veyle", "Nel", "Nil", "Zelestia", "Gregory", "Madeline"]
+    const basicWeaponsSpanish = {
+        Espada: "sword",
+        Hacha: "axe",
+        Lanza: "lance",
+        Tome: "tome",
+        "Puños": "arts",
+        Arco: "bow",
+        Daga: "knife",
+        "Bastón": "staff",
+        Grimorio: "tome"
+    };
+    const charactersData = []
+    for (const character of characterNames) {
+        try {
+            const request = await axios.get(`https://www.fireemblemwod.com/fe17/personajes/${character === "Alear" ? "Avatar" : character}.htm`)
+            const $ = cheerio.load(request.data)
+
+            const cleanURL = (str) => {
+                const parts = str.split('-');
+                const extension = parts.pop().split('.').pop();
+                return parts[0] + '.' + extension;
+
+            }
+
+            const img = $(".imgWH").attr("src").replace("..", "https://www.fireemblemwod.com/fe17")
+            const imgName = cleanURL(getImgName(img))
+            const imgPath = `${imgBasePath}/characters/big/${imgName}`
+            downloadImage(img, imgPath)
+
+            const sprite = $("td.separador.imgsprites").find("img").attr("src").replace("..", "https://www.fireemblemwod.com/fe17")
+            const spriteName = getImgName(sprite)
+            const spritePath = `${imgBasePath}/characters/sprites/${spriteName}`
+            downloadImage(sprite, spritePath)
+
+            const [bases, growths, modifiers] = $("table.w1acb0:eq(3) tr.bbs4").map((_, el) => {
+                const data = $(el).text().trim().replace(/\t/g, "").split("\n").slice(1)
+                return {
+                    hp: buildNumericStat(data[0] || ""),
+                    str: buildNumericStat(data[1] || ""),
+                    mag: buildNumericStat(data[2] || ""),
+                    dex: buildNumericStat(data[3] || ""),
+                    spd: buildNumericStat(data[4] || ""),
+                    def: buildNumericStat(data[5] || ""),
+                    res: buildNumericStat(data[6] || ""),
+                    lck: buildNumericStat(data[7] || ""),
+                    con: buildNumericStat(data[8] || ""),
+                }
+            }).toArray()
+
+            const initialClass = (() => {
+                const data = $("td.separador.imgsprites span").text()
+                if (data.includes("/")) return data.split("/")?.[0].trim()
+                if (data.split("\n").length !== 2) return data.trim()
+                return data.split("\n")?.[1].trim().replace(/[\(\)]/g, "")
+            })()
+
+            const initialSP = buildNumericStat($("td.separador:last").text().match(/\d+/g)?.[1])
+
+            const capability = (() => {
+                const data = $("td.separador:last").text()
+                const splitString = data.split("Aptitud oculta");
+                const formattedCapability = splitString[0].replace("Aptitud: ", "").trim()
+                return formattedCapability in basicWeaponsSpanish ? basicWeaponsSpanish[formattedCapability] : null
+            })()
+
+            const hiddenCapabilities = (() => {
+                const data = $("td.separador:last").text()
+                const splitString = data.split("Aptitud oculta:");
+                const formattedCapabilities = splitString[1].split("\n")[0].trim()
+                if (formattedCapabilities === "--") return []
+                if (!formattedCapabilities.includes(",")) return [basicWeaponsSpanish[formattedCapabilities]]
+                return formattedCapabilities.split(",")
+                    .map((capability) => capability.trim())
+                    .map((capability) => capability in basicWeaponsSpanish ? basicWeaponsSpanish[capability] : null)
+            })()
+
+            charactersData.push({
+                bases,
+                growths,
+                modifiers,
+                initialClass,
+                initialSP,
+                capability,
+                hiddenCapabilities,
+                sprite: spritePath,
+                name: character,
+                img: imgPath,
+            })
+        } catch (error) {
+            console.log(`error on ${character} page`, error)
+        }
+
+    }
+    fs.writeFile(`./data/characters-data.json`, JSON.stringify(charactersData), () => null)
+
+}
+
+getCharactersData()
+
