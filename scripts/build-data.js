@@ -50,11 +50,29 @@ function toBase64(index) {
     return base64;
 }
 
+function createEngageAttackUnitTypeModifier(s) {
+    const pattern = /\[(.*?)\](.*)/;
+    const matches = s.match(pattern);
 
+    if (matches && matches.length > 2) {
+        const unitType = matches[1].trim();
+        const effect = matches[2].trim();
+        return {
+            unitType,
+            effect
+        };
+    } else {
+        return null;
+    }
+}
+const addMissingStats = (statsObj, base = 0) => {
+    const allStats = ["hp", "str", "mag", "dex", "spd", "def", "res", "lck", "con", "mov"].map((stat) => [stat, base])
+    return { ...Object.fromEntries(allStats), ...statsObj }
+}
 const imgBasePath = "./assets/base"
-const characterNames = ["Alear", "Vander", "Clanne", "Framme", "Alfred", "Etie", "Boucheron", "Celine", "Chloe", "Louis", "Jean", "Yunaka", "Anna", "Alcryst", "Citrinne", "Lapis", "Diamant", "Amber", "Jade", "Ivy", "Kagetsu", "Zelkov", "Fogado", "Pandreo", "Bunet", "Timerra", "Panette", "Merrin", "Hortensia", "Seadall", "Rosado", "Goldmary", "Lindon", "Saphir", "Mauvier", "Veyle", "Nel", "Nil", "Zelestia", "Gregory", "Madeline"]
 
-const getCharactersData = async () => {
+const init = async () => {
+    const characterNames = ["Alear", "Vander", "Clanne", "Framme", "Alfred", "Etie", "Boucheron", "Celine", "Chloe", "Louis", "Jean", "Yunaka", "Anna", "Alcryst", "Citrinne", "Lapis", "Diamant", "Amber", "Jade", "Ivy", "Kagetsu", "Zelkov", "Fogado", "Pandreo", "Bunet", "Timerra", "Panette", "Merrin", "Hortensia", "Seadall", "Rosado", "Goldmary", "Lindon", "Saphir", "Mauvier", "Veyle", "Nel", "Nil", "Zelestia", "Gregory", "Madeline"]
     const basicWeaponsSpanish = {
         Espada: "sword",
         Hacha: "axe",
@@ -66,7 +84,10 @@ const getCharactersData = async () => {
         "Bastón": "staff",
         Grimorio: "tome"
     };
+    const emblemNames = ["Alear", "Marth", "Sigurd", "Celica", "Micaiah", "Roy", "Leif", "Lucina", "Lyn", "Ike", "Byleth", "Corrin", "Eirika", "Edelgard", "Tiki", "Hector", "Veronica", "Soren", "Camilla", "Chrom"]
     const charactersData = []
+    const emblems = []
+    const skills = []
     for (let i = 0; i < characterNames.length; i++) {
         const character = characterNames[i]
         try {
@@ -150,18 +171,60 @@ const getCharactersData = async () => {
         }
 
     }
-    fs.writeFile(`./data/characters-data.json`, JSON.stringify(charactersData), () => null)
+
+
+    for (let index = 0; index < emblemNames.length; index++) {
+        const emblem = emblemNames[index];
+        const request = await axios.get(`https://serenesforest.net/engage/emblems/${emblem.toLowerCase()}/`)
+        const $ = cheerio.load(request.data)
+        const weaponProficiencies = []
+        let engageAttack = { base: null, link: null }
+
+        const statsModifiersNames = $("table:first tr th:not(:first)").toArray().map((el) => $(el).text().toLowerCase().replace("\n", ""))
+        const statsModifiers = $("table:first tr:last td:not(:first)").toArray().map((el) => Number($(el).text()))
+        const fullModifiers = statsModifiersNames.map((statName, i) => [statName, statsModifiers[i]])
+
+        $("table:last tr").each((_, el) => {
+            const data = $(el).text().trim().split("\n").slice(1)
+
+            if (data[0].includes("Prof")) return weaponProficiencies.push(data[0].toLowerCase().split(" ")[0])
+
+            if (data[2].includes("Engage Attack")) {
+                const attackPartner = data[2].includes("adjacent") ? data[2].split(" ").slice(-1)[0].replace(")", "") : null
+                const [description, ...unitTypeModifers] = data[1].split(/(?=\[[^\]]+\])/)
+                return attackPartner
+                    ? engageAttack.link = { attackPartner, description }
+                    : engageAttack.base = {
+                        name: data[0],
+                        description,
+                        unitTypeModifers: unitTypeModifers.map(createEngageAttackUnitTypeModifier)
+                    }
+            }
+
+            if (data[2] === "Engage Weapon") {
+
+            }
+        })
+
+        emblems.push({
+            weaponProficiencies,
+            engageAttack,
+            name: emblem,
+            base64ID: toBase64(index),
+            statsModifiers: addMissingStats(Object.fromEntries(fullModifiers)),
+        })
+    }
+
+    fs.writeFile(`./data/characters.json`, JSON.stringify(charactersData), () => null)
+    fs.writeFile(`./data/emblems.json`, JSON.stringify(emblems), () => null)
 
 }
 
-const emblemNames = ["Alear", "Marth", "Sigurd", "Celica", "Micaiah", "Roy", "Leif", "Lucina", "Lyn", "Ike", "Byleth", "Corrin", "Eirika", "Edelgard", "Tiki", "Hector", "Veronica", "Soren", "Camilla", "Chrome"]
 
-for (let index = 0; index < emblemNames.length; index++) {
-    const element = emblemNames[index];
-    axios.get()
-}
 
-getCharactersData()
+
+
+
 
 axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) => {
     const $ = cheerio.load(html.data)
@@ -283,5 +346,5 @@ for (const weapon of basicWeapons) {
 }
 
 
-
+init()
 
