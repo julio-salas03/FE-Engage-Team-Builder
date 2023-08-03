@@ -281,9 +281,39 @@ const init = async () => {
         })
     }
 
+    const engravings = []
+
+    await axios.get("https://serenesforest.net/engage/somniel/engraving/").then((html) => {
+        const $ = cheerio.load(html.data)
+        $("table tr:not(:first)").each((i, el) => {
+            const { data, img, imgName } = extractBasicData($(el))
+
+            if (data[1] !== "Emblem") {
+                const parsedImgName = imgName.replace("engrave-", "")
+                const imgPath = `${imgBasePath}/engravings/${parsedImgName}`
+                downloadImage(img, imgPath)
+                engravings.push({
+                    name: data[1],
+                    emblem: data[0],
+                    mt: buildNumericStat(data[2]),
+                    hit: buildNumericStat(data[3]),
+                    crit: buildNumericStat(data[4]),
+                    wt: buildNumericStat(data[5]),
+                    avo: buildNumericStat(data[6]),
+                    ddg: buildNumericStat(data[7]),
+                    img: imgPath,
+                    base64ID: toBase64(i)
+                })
+            }
+
+        })
+    })
+
     fs.writeFile(`./data/characters.json`, JSON.stringify(charactersData), () => null)
     fs.writeFile(`./data/emblems.json`, JSON.stringify(emblems), () => null)
     fs.writeFile(`./data/weapons.json`, JSON.stringify(weapons), () => null)
+    fs.writeFile("./data/engravings.json", JSON.stringify(engravings), () => null)
+
 }
 
 
@@ -351,32 +381,7 @@ axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) 
     fs.writeFile("./data/syncho-skills.json", JSON.stringify(synchoSkills), () => null)
 })
 
-axios.get("https://serenesforest.net/engage/somniel/engraving/").then((html) => {
-    const $ = cheerio.load(html.data)
-    const engravings = []
-    $("table tr:not(:first)").each((_, el) => {
-        const { data, img, imgName } = extractBasicData($(el))
 
-        if (data[1] !== "Emblem") {
-            const parsedImgName = imgName.replace("engrave-", "")
-            const imgPath = `${imgBasePath}/engravings/${parsedImgName}`
-            downloadImage(img, imgPath)
-            engravings.push({
-                name: data[1],
-                emblem: data[0],
-                mt: buildNumericStat(data[2]),
-                hit: buildNumericStat(data[3]),
-                crit: buildNumericStat(data[4]),
-                wt: buildNumericStat(data[5]),
-                avo: buildNumericStat(data[6]),
-                ddg: buildNumericStat(data[7]),
-                img: imgPath
-            })
-        }
-
-    })
-    fs.writeFile("./data/engravings.json", JSON.stringify(engravings), () => null)
-})
 
 
 
