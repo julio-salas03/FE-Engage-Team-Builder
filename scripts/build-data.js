@@ -69,9 +69,65 @@ const addMissingStats = (statsObj, base = 0) => {
     const allStats = ["hp", "str", "mag", "dex", "spd", "def", "res", "lck", "con", "mov"].map((stat) => [stat, base])
     return { ...Object.fromEntries(allStats), ...statsObj }
 }
+function normalizeName(name) {
+    return name.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+}
+
 const imgBasePath = "./assets/base"
 
 const init = async () => {
+
+    const inheritableSkills = []
+    const synchoSkills = []
+    const personalSkills = []
+    const classSkills = []
+
+    await axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) => {
+        const $ = cheerio.load(html.data)
+        for (let index = 1; index <= 4; index++) {
+            /**
+             * This allows to retreive the dlc emblems data
+             */
+            const realIndex = index > 2 ? index + 4 : index
+            $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
+                const { data, img, imgName } = extractBasicData($(el))
+                const bond = data[3].split(" ")
+                const isInheritable = !Number.isNaN(Number(data[2]))
+                const imgPath = `${imgBasePath}/skills/${isInheritable ? "inheritable" : "syncho"}/${imgName}`
+                downloadImage(img, imgPath)
+                if (isInheritable)
+                    inheritableSkills.push({ name: data[0], description: data[1], spCost: Number(data[2]), bondLvl: Number(bond[3]), emblem: bond[0], img: imgPath, base64ID: toBase64(0) })
+                else synchoSkills.push({ name: data[0], description: data[1], emblem: bond[0], img: imgPath, base64ID: toBase64(0) })
+            })
+        }
+
+        const personalSkilsStartingIndex = 3
+
+
+        for (let index = personalSkilsStartingIndex; index <= personalSkilsStartingIndex + 1; index++) {
+            const realIndex = index === personalSkilsStartingIndex ? personalSkilsStartingIndex : personalSkilsStartingIndex + 6
+            $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
+                const { data, img, imgName } = extractBasicData($(el))
+                const imgPath = `${imgBasePath}/skills/personal/${imgName}`
+                downloadImage(img, imgPath)
+                personalSkills.push({ name: normalizeName(data[0]), description: data[1], character: data[2], img: imgPath })
+            })
+        }
+
+        const classSkilsStartingIndex = 4
+
+        for (let index = classSkilsStartingIndex; index <= classSkilsStartingIndex + 1; index++) {
+            const realIndex = index === classSkilsStartingIndex ? classSkilsStartingIndex : classSkilsStartingIndex + 6
+            $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
+                const { data, img, imgName } = extractBasicData($(el))
+                const imgPath = `${imgBasePath}/skills/class/${imgName}`
+                downloadImage(img, imgPath)
+                classSkills.push({ name: data[0], description: data[1], class: data[2], img: imgPath })
+            })
+        }
+    })
+
+    const charactersData = []
     const characterNames = ["Alear", "Vander", "Clanne", "Framme", "Alfred", "Etie", "Boucheron", "Celine", "Chloe", "Louis", "Jean", "Yunaka", "Anna", "Alcryst", "Citrinne", "Lapis", "Diamant", "Amber", "Jade", "Ivy", "Kagetsu", "Zelkov", "Fogado", "Pandreo", "Bunet", "Timerra", "Panette", "Merrin", "Hortensia", "Seadall", "Rosado", "Goldmary", "Lindon", "Saphir", "Mauvier", "Veyle", "Nel", "Nil", "Zelestia", "Gregory", "Madeline"]
     const basicWeaponsSpanish = {
         Espada: "sword",
@@ -84,14 +140,6 @@ const init = async () => {
         "Bastón": "staff",
         Grimorio: "tome"
     };
-    const emblemNames = ["Alear", "Marth", "Sigurd", "Celica", "Micaiah", "Roy", "Leif", "Lucina", "Lyn", "Ike", "Byleth", "Corrin", "Eirika", "Edelgard", "Tiki", "Hector", "Veronica", "Soren", "Camilla", "Chrom"]
-    const charactersData = []
-    const emblems = []
-    const skills = []
-    const weaponTypes = ["swords", "lances", "axes", "bows", "knives", "tomes", "arts"]
-    const weapons = []
-    const allEngageweapons = []
-    const weaponsUpgrades = []
 
     for (let i = 0; i < characterNames.length; i++) {
         const character = characterNames[i]
@@ -157,7 +205,7 @@ const init = async () => {
                     .map((capability) => capability.trim())
                     .map((capability) => capability in basicWeaponsSpanish ? basicWeaponsSpanish[capability] : null)
             })()
-
+            const { character: _, ...personalSkill } = personalSkills.find((skill) => normalizeName(skill.character) === character)
             charactersData.push({
                 bases,
                 growths,
@@ -166,15 +214,18 @@ const init = async () => {
                 initialSP,
                 capability,
                 hiddenCapabilities,
+                personalSkill,
                 sprite: spritePath,
                 name: character,
                 img: imgPath,
-                base64ID: toBase64(i)
+                base64ID: toBase64(i),
             })
         } catch (error) {
             console.log(`error on ${character} page`, error)
         }
     }
+
+    const weaponsUpgrades = []
 
     await axios.get("https://serenesforest.net/engage/somniel/forging/").then((html) => {
         const $ = cheerio.load(html.data)
@@ -200,6 +251,11 @@ const init = async () => {
             })
         })
     })
+
+    const weaponTypes = ["swords", "lances", "axes", "bows", "knives", "tomes", "arts"]
+    const weapons = []
+    const allEngageweapons = []
+
 
     for (const weaponType of weaponTypes) {
         await axios.get(`https://serenesforest.net/engage/weapons-items/${weaponType}/`).then((html) => {
@@ -235,6 +291,9 @@ const init = async () => {
 
         })
     }
+
+    const emblemNames = ["Alear", "Marth", "Sigurd", "Celica", "Micaiah", "Roy", "Leif", "Lucina", "Lyn", "Ike", "Byleth", "Corrin", "Eirika", "Edelgard", "Tiki", "Hector", "Veronica", "Soren", "Camilla", "Chrom"]
+    const emblems = []
 
     for (let index = 0; index < emblemNames.length; index++) {
         const emblem = emblemNames[index];
@@ -313,78 +372,10 @@ const init = async () => {
     fs.writeFile(`./data/emblems.json`, JSON.stringify(emblems), () => null)
     fs.writeFile(`./data/weapons.json`, JSON.stringify(weapons), () => null)
     fs.writeFile("./data/engravings.json", JSON.stringify(engravings), () => null)
-
-}
-
-
-
-
-
-
-
-axios.get("https://serenesforest.net/engage/miscellaneous/skills/").then((html) => {
-    const $ = cheerio.load(html.data)
-    let skillIndex = 0
-    const inheritableSkills = []
-    const synchoSkills = []
-    const personalSkills = []
-    const classSkills = []
-    const imgBasePath = "./assets/base/skills"
-
-
-
-    for (let index = 1; index <= 4; index++) {
-        /**
-         * This allows to retreive the dlc emblems data
-         */
-        const realIndex = index > 2 ? index + 4 : index
-        $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
-            const { data, img, imgName } = extractBasicData($(el))
-            const bond = data[3].split(" ")
-            const isInheritable = !Number.isNaN(Number(data[2]))
-            const imgPath = `${imgBasePath}/${isInheritable ? "inheritable" : "syncho"}/${imgName}`
-            downloadImage(img, imgPath)
-            if (isInheritable)
-                inheritableSkills.push({ name: data[0], description: data[1], spCost: Number(data[2]), bondLvl: Number(bond[3]), emblem: bond[0], img: imgPath, base64ID: toBase64(skillIndex) })
-            else synchoSkills.push({ name: data[0], description: data[1], emblem: bond[0], img: imgPath, base64ID: toBase64(skillIndex) })
-        })
-    }
-
-    const personalSkilsStartingIndex = 3
-
-
-    for (let index = personalSkilsStartingIndex; index <= personalSkilsStartingIndex + 1; index++) {
-        const realIndex = index === personalSkilsStartingIndex ? personalSkilsStartingIndex : personalSkilsStartingIndex + 6
-        $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
-            const { data, img, imgName } = extractBasicData($(el))
-            const imgPath = `${imgBasePath}/personal/${imgName}`
-            downloadImage(img, imgPath)
-            personalSkills.push({ name: data[0], description: data[1], character: data[2], img: imgPath })
-        })
-    }
-
-    const classSkilsStartingIndex = 4
-
-    for (let index = classSkilsStartingIndex; index <= classSkilsStartingIndex + 1; index++) {
-        const realIndex = index === classSkilsStartingIndex ? classSkilsStartingIndex : classSkilsStartingIndex + 6
-        $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
-            const { data, img, imgName } = extractBasicData($(el))
-            const imgPath = `${imgBasePath}/class/${imgName}`
-            downloadImage(img, imgPath)
-            classSkills.push({ name: data[0], description: data[1], class: data[2], img: imgPath })
-        })
-    }
-
-    fs.writeFile("./data/personal-skills.json", JSON.stringify(personalSkills), () => null)
     fs.writeFile("./data/class-skills.json", JSON.stringify(classSkills), () => null)
     fs.writeFile("./data/inheritable-skills.json", JSON.stringify(inheritableSkills), () => null)
     fs.writeFile("./data/syncho-skills.json", JSON.stringify(synchoSkills), () => null)
-})
 
-
-
-
-
+}
 
 init()
-
