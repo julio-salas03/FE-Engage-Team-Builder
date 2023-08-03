@@ -91,6 +91,8 @@ const init = async () => {
     const weaponTypes = ["swords", "lances", "axes", "bows", "knives", "tomes", "arts"]
     const weapons = []
     const allEngageweapons = []
+    const weaponsUpgrades = []
+
     for (let i = 0; i < characterNames.length; i++) {
         const character = characterNames[i]
         try {
@@ -174,6 +176,30 @@ const init = async () => {
         }
     }
 
+    await axios.get("https://serenesforest.net/engage/somniel/forging/").then((html) => {
+        const $ = cheerio.load(html.data)
+        $("table tr").each((_, el) => {
+            const data = $(el).text().trim().split("\n")
+            if (!data[0].includes("+") || data[0].includes("New Weapon")) return
+            const [weaponName, upgradeLvl] = data[0].split("+")
+            const materials = data[5].trim().split(",")
+
+            weaponsUpgrades.push({
+                weaponName,
+                upgradeLvl: Number(upgradeLvl),
+                mt: buildNumericStat(data[1]),
+                hit: buildNumericStat(data[2]),
+                crit: buildNumericStat(data[3]),
+                wt: buildNumericStat(data[4]),
+                materials: materials.reduce((acc, curr) => {
+                    const [material, , amount] = curr.split(" ")
+                    if (!material) return acc
+                    return { ...acc, [material.toLowerCase()]: Number(amount.replace("x", "")) }
+                }, {}),
+                price: buildNumericStat(data[6]),
+            })
+        })
+    })
 
     for (const weaponType of weaponTypes) {
         await axios.get(`https://serenesforest.net/engage/weapons-items/${weaponType}/`).then((html) => {
@@ -198,7 +224,13 @@ const init = async () => {
                     type: weaponType,
                 }
                 if (data[8].includes("wielded by Emblem") || data[8].includes("of Emblem")) return allEngageweapons.push(weapon)
-                weapons.push({ ...weapon, base64ID: base64ID.length < 2 ? "A" + base64ID : base64ID })
+                const weaponUpgrades = weaponsUpgrades.filter((upgrade) => upgrade.weaponName === data[0])
+
+                weapons.push({
+                    ...weapon,
+                    base64ID: base64ID.length < 2 ? "A" + base64ID : base64ID,
+                    weaponUpgrades: weaponUpgrades.map(({ weaponName, upgradeLvl, ...upgradeData }) => upgradeData),
+                })
             })
 
         })
