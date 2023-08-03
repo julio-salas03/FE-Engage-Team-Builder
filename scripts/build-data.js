@@ -88,6 +88,8 @@ const init = async () => {
     const charactersData = []
     const emblems = []
     const skills = []
+    const weaponTypes = ["swords", "lances", "axes", "bows", "knives", "tomes", "arts"]
+    const weapons = []
     for (let i = 0; i < characterNames.length; i++) {
         const character = characterNames[i]
         try {
@@ -169,7 +171,37 @@ const init = async () => {
         } catch (error) {
             console.log(`error on ${character} page`, error)
         }
+    }
 
+
+    for (const weapon of weaponTypes) {
+        axios.get(`https://serenesforest.net/engage/weapons-items/${weapon}/`).then((html) => {
+            const $ = cheerio.load(html.data)
+            $("table tr").each((_, el) => {
+                const { data, img, imgName } = extractBasicData($(el))
+
+                if (data[0] !== "Icon") {
+                    const imgPath = `${imgBasePath}/weapons/${weapon}/${imgName}`
+                    downloadImage(img, imgPath)
+                    weapons.push({
+                        name: data[0],
+                        mt: buildNumericStat(data[1]),
+                        hit: buildNumericStat(data[2]),
+                        crit: buildNumericStat(data[3]),
+                        wt: buildNumericStat(data[4]),
+                        rng: buildNumericStat(data[5]),
+                        lvl: buildNumericStat(data[6]),
+                        price: buildNumericStat(data[7]),
+                        description: data[8],
+                        isEngageWeapon: data[8].includes("wielded by Emblem"),
+                        img: imgPath,
+                        type: weapon
+                    })
+                }
+
+            })
+
+        })
     }
 
 
@@ -217,7 +249,7 @@ const init = async () => {
 
     fs.writeFile(`./data/characters.json`, JSON.stringify(charactersData), () => null)
     fs.writeFile(`./data/emblems.json`, JSON.stringify(emblems), () => null)
-
+    fs.writeFile(`./data/weapons.json`, JSON.stringify(weapons), () => null)
 }
 
 
@@ -312,38 +344,7 @@ axios.get("https://serenesforest.net/engage/somniel/engraving/").then((html) => 
     fs.writeFile("./data/engravings.json", JSON.stringify(engravings), () => null)
 })
 
-const basicWeapons = ["swords", "lances", "axes", "bows", "knives", "tomes", "arts"]
 
-for (const weapon of basicWeapons) {
-    axios.get(`https://serenesforest.net/engage/weapons-items/${weapon}/`).then((html) => {
-        const $ = cheerio.load(html.data)
-        const list = []
-        $("table tr").each((_, el) => {
-            const { data, img, imgName } = extractBasicData($(el))
-
-            if (data[0] !== "Icon") {
-                const imgPath = `${imgBasePath}/weapons/${weapon}/${imgName}`
-                downloadImage(img, imgPath)
-                list.push({
-                    name: data[0],
-                    mt: buildNumericStat(data[1]),
-                    hit: buildNumericStat(data[2]),
-                    crit: buildNumericStat(data[3]),
-                    wt: buildNumericStat(data[4]),
-                    rng: buildNumericStat(data[5]),
-                    lvl: buildNumericStat(data[6]),
-                    price: buildNumericStat(data[7]),
-                    description: data[8],
-                    isEngageWeapon: data[8].includes("wielded by Emblem"),
-                    img: imgPath
-                })
-            }
-
-        })
-
-        fs.writeFile(`./data/${weapon}.json`, JSON.stringify(list), () => null)
-    })
-}
 
 
 init()
