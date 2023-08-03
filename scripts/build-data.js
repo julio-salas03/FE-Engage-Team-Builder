@@ -90,6 +90,7 @@ const init = async () => {
     const skills = []
     const weaponTypes = ["swords", "lances", "axes", "bows", "knives", "tomes", "arts"]
     const weapons = []
+    const allEngageweapons = []
     for (let i = 0; i < characterNames.length; i++) {
         const character = characterNames[i]
         try {
@@ -174,16 +175,16 @@ const init = async () => {
     }
 
 
-    for (const weapon of weaponTypes) {
-        axios.get(`https://serenesforest.net/engage/weapons-items/${weapon}/`).then((html) => {
+    for (const weaponType of weaponTypes) {
+        await axios.get(`https://serenesforest.net/engage/weapons-items/${weaponType}/`).then((html) => {
             const $ = cheerio.load(html.data)
             $("table tr").each((_, el) => {
                 const { data, img, imgName } = extractBasicData($(el))
                 if (data[0] === "Icon" || data[0].match(/[\(\)]+/)) return
-                const imgPath = `${imgBasePath}/weapons/${weapon}/${imgName}`
+                const imgPath = `${imgBasePath}/weapons/${weaponType}/${imgName}`
                 downloadImage(img, imgPath)
                 const base64ID = toBase64(weapons.length)
-                weapons.push({
+                const weapon = {
                     name: data[0],
                     mt: buildNumericStat(data[1]),
                     hit: buildNumericStat(data[2]),
@@ -193,17 +194,15 @@ const init = async () => {
                     lvl: buildNumericStat(data[6]),
                     price: buildNumericStat(data[7]),
                     description: data[8],
-                    isEngageWeapon: data[8].includes("wielded by Emblem"),
                     img: imgPath,
-                    type: weapon,
-                    base64ID: base64ID.length < 2 ? "A" + base64ID : base64ID
-                })
-
+                    type: weaponType,
+                }
+                if (data[8].includes("wielded by Emblem") || data[8].includes("of Emblem")) return allEngageweapons.push(weapon)
+                weapons.push({ ...weapon, base64ID: base64ID.length < 2 ? "A" + base64ID : base64ID })
             })
 
         })
     }
-
 
     for (let index = 0; index < emblemNames.length; index++) {
         const emblem = emblemNames[index];
@@ -235,13 +234,15 @@ const init = async () => {
             }
 
             if (data[2] === "Engage Weapon") {
-                console.log(data)
+                const foundWeapon = allEngageweapons.find((weapon) => weapon.name === data[0])
+                if (foundWeapon) engageWeapons.push(foundWeapon)
             }
         })
 
         emblems.push({
             weaponProficiencies,
             engageAttack,
+            engageWeapons,
             name: emblem,
             base64ID: toBase64(index),
             statsModifiers: addMissingStats(Object.fromEntries(fullModifiers)),
