@@ -179,25 +179,25 @@ const init = async () => {
             const $ = cheerio.load(html.data)
             $("table tr").each((_, el) => {
                 const { data, img, imgName } = extractBasicData($(el))
-
-                if (data[0] !== "Icon") {
-                    const imgPath = `${imgBasePath}/weapons/${weapon}/${imgName}`
-                    downloadImage(img, imgPath)
-                    weapons.push({
-                        name: data[0],
-                        mt: buildNumericStat(data[1]),
-                        hit: buildNumericStat(data[2]),
-                        crit: buildNumericStat(data[3]),
-                        wt: buildNumericStat(data[4]),
-                        rng: buildNumericStat(data[5]),
-                        lvl: buildNumericStat(data[6]),
-                        price: buildNumericStat(data[7]),
-                        description: data[8],
-                        isEngageWeapon: data[8].includes("wielded by Emblem"),
-                        img: imgPath,
-                        type: weapon
-                    })
-                }
+                if (data[0] === "Icon" || data[0].match(/[\(\)]+/)) return
+                const imgPath = `${imgBasePath}/weapons/${weapon}/${imgName}`
+                downloadImage(img, imgPath)
+                const base64ID = toBase64(weapons.length)
+                weapons.push({
+                    name: data[0],
+                    mt: buildNumericStat(data[1]),
+                    hit: buildNumericStat(data[2]),
+                    crit: buildNumericStat(data[3]),
+                    wt: buildNumericStat(data[4]),
+                    rng: buildNumericStat(data[5]),
+                    lvl: buildNumericStat(data[6]),
+                    price: buildNumericStat(data[7]),
+                    description: data[8],
+                    isEngageWeapon: data[8].includes("wielded by Emblem"),
+                    img: imgPath,
+                    type: weapon,
+                    base64ID: base64ID.length < 2 ? "A" + base64ID : base64ID
+                })
 
             })
 
@@ -211,6 +211,7 @@ const init = async () => {
         const $ = cheerio.load(request.data)
         const weaponProficiencies = []
         let engageAttack = { base: null, link: null }
+        const engageWeapons = []
 
         const statsModifiersNames = $("table:first tr th:not(:first)").toArray().map((el) => $(el).text().toLowerCase().replace("\n", ""))
         const statsModifiers = $("table:first tr:last td:not(:first)").toArray().map((el) => Number($(el).text()))
@@ -234,7 +235,7 @@ const init = async () => {
             }
 
             if (data[2] === "Engage Weapon") {
-
+                console.log(data)
             }
         })
 
