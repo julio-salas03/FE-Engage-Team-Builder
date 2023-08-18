@@ -3,13 +3,13 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { routeLoader$ } from '@builder.io/qwik-city';
 import { readFile } from "fs/promises";
 
-const getResourceAssets = (file: string) => {
-  return {
-    defaultAsset: file,
-    webp: file.replace(".png", ".webp"),
-    avif: file.replace(".png", ".avif")
-  }
-}
+// const getResourceAssets = (file: string) => {
+//   return {
+//     defaultAsset: file,
+//     webp: file.replace(".png", ".webp"),
+//     avif: file.replace(".png", ".avif")
+//   }
+// }
 
 export const useData = routeLoader$(async () => {
   const loadData = async (file: string) => JSON.parse(await readFile(file, "utf-8"))
