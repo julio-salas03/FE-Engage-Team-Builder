@@ -4,6 +4,10 @@ const fs = require("fs")
 const path = require('path');
 const sharp = require('sharp');
 
+const purgeFileURL = (file) => {
+    return file.replace("/public", "").replace(/\.\w+/g, ".png")
+}
+
 const getImgName = (img) => img?.match(/([^/]*$)/g)[0].toLowerCase().replace(/_/g, '-')
 
 const ensureDirectoryExistence = async (filePath) => {
@@ -126,8 +130,8 @@ const init = async () => {
                 const imgPath = `${imgBasePath}/skills/${isInheritable ? "inheritable" : "syncho"}/${imgName}`
                 downloadImage(img, imgPath)
                 if (isInheritable)
-                    inheritableSkills.push({ name: data[0], description: data[1], spCost: Number(data[2]), bondLvl: Number(bond[3]), emblem: bond[0], img: imgPath, base64ID: toBase64(0) })
-                else synchoSkills.push({ name: data[0], description: data[1], emblem: bond[0], img: imgPath, base64ID: toBase64(0) })
+                    inheritableSkills.push({ name: data[0], description: data[1], spCost: Number(data[2]), bondLvl: Number(bond[3]), emblem: bond[0], img: purgeFileURL(imgPath), base64ID: toBase64(0) })
+                else synchoSkills.push({ name: data[0], description: data[1], emblem: bond[0], img: purgeFileURL(imgPath), base64ID: toBase64(0) })
             })
         }
 
@@ -140,7 +144,7 @@ const init = async () => {
                 const { data, img, imgName } = extractBasicData($(el))
                 const imgPath = `${imgBasePath}/skills/personal/${imgName}`
                 downloadImage(img, imgPath)
-                personalSkills.push({ name: normalizeName(data[0]), description: data[1], character: data[2], img: imgPath })
+                personalSkills.push({ name: normalizeName(data[0]), description: data[1], character: data[2], img: purgeFileURL(imgPath) })
             })
         }
 
@@ -152,7 +156,7 @@ const init = async () => {
                 const { data, img, imgName } = extractBasicData($(el))
                 const imgPath = `${imgBasePath}/skills/class/${imgName}`
                 downloadImage(img, imgPath)
-                classSkills.push({ name: data[0], description: data[1], class: data[2], img: imgPath })
+                classSkills.push({ name: data[0], description: data[1], class: data[2], img: purgeFileURL(imgPath) })
             })
         }
     })
@@ -245,9 +249,9 @@ const init = async () => {
                 capability,
                 hiddenCapabilities,
                 personalSkill,
-                sprite: spritePath,
+                sprite: purgeFileURL(spritePath),
                 name: character,
-                img: imgPath,
+                img: purgeFileURL(imgPath),
                 base64ID: toBase64(i),
             })
         } catch (error) {
@@ -306,7 +310,7 @@ const init = async () => {
                     lvl: buildNumericStat(data[6]),
                     price: buildNumericStat(data[7]),
                     description: data[8],
-                    img: imgPath,
+                    img: purgeFileURL(imgPath),
                     type: weaponType,
                 }
                 if (data[8].includes("wielded by Emblem") || data[8].includes("of Emblem")) return allEngageWeapons.push(weapon)
@@ -390,7 +394,7 @@ const init = async () => {
                     wt: buildNumericStat(data[5]),
                     avo: buildNumericStat(data[6]),
                     ddg: buildNumericStat(data[7]),
-                    img: imgPath,
+                    img: purgeFileURL(imgPath),
                     base64ID: toBase64(i)
                 })
             }
