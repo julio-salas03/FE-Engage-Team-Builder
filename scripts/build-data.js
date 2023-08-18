@@ -363,6 +363,10 @@ const init = async () => {
                 if (foundWeapon) engageWeapons.push(foundWeapon)
             }
         })
+        const img = $("img").map((_, el) => $(el).attr("src")).toArray().filter((url) => url.includes(emblem.toLocaleLowerCase()))[0]
+        const imgName = img ? getImgName(img) : ""
+        const imgPath = `${imgBasePath}/emblems/${imgName}/`
+        if (img) downloadImage(img, imgPath)
 
         emblems.push({
             weaponProficiencies,
@@ -371,6 +375,7 @@ const init = async () => {
             name: emblem,
             base64ID: toBase64(index),
             statsModifiers: addMissingStats(Object.fromEntries(fullModifiers)),
+            img: img ? purgeFileURL(imgPath) : ""
         })
     }
 
