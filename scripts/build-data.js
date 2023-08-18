@@ -1,31 +1,61 @@
 const cheerio = require("cheerio")
 const axios = require("axios")
 const fs = require("fs")
+const path = require('path');
+const sharp = require('sharp');
 
+const getImgName = (img) => img?.match(/([^/]*$)/g)[0].toLowerCase().replace(/_/g, '-')
 
-const downloadImage = (url, image_path) => {
-    if (fs.existsSync(image_path)) return
-    return axios({
+const ensureDirectoryExistence = async (filePath) => {
+    try {
+        const dirname = path.dirname(filePath);
+        if (!fs.existsSync(dirname)) {
+            await ensureDirectoryExistence(dirname);
+            await fs.promises.mkdir(dirname);
+        }
+        return true
+    } catch (error) {
+        // TODO: handle this error
+        return true
+    }
+
+};
+
+const downloadImage = async (url, base_image_path) => {
+    if (fs.existsSync(base_image_path)) return;
+
+    await ensureDirectoryExistence(base_image_path);
+
+    const response = await axios({
         url,
-        responseType: 'stream',
-    }).then(
-        response =>
-            new Promise((resolve, reject) => {
-                response.data
-                    .pipe(fs.createWriteStream(image_path))
-                    .on('finish', () => resolve())
-                    .on('error', e => reject(e));
-            }),
-    );
-}
+        responseType: 'arraybuffer',
+    });
+
+    const imageBuffer = Buffer.from(response.data, 'binary');
+
+    const baseNameWithoutExt = path.basename(base_image_path, path.extname(base_image_path));
+    const dirName = path.dirname(base_image_path);
+
+    const saveImage = async (format) => {
+        const outputPath = path.join(dirName, `${baseNameWithoutExt}.${format}`);
+        await sharp(imageBuffer)
+            .toFile(outputPath, (err, info) => {
+                if (err) throw err;
+            });
+    };
+
+    await Promise.all([
+        saveImage('png'),
+        saveImage('avif'),
+        saveImage('webp')
+    ]);
+};
 
 const buildNumericStat = (stat) => {
     if (typeof stat !== "string") throw new Error(`buildNumericStat expects stat parameter to be a string. ${typeof stat} provided`)
     const numberStat = Number(stat)
     return !Number.isNaN(numberStat) ? numberStat : 0
 }
-
-const getImgName = (img) => img?.match(/([^/]*$)/g)[0].toLowerCase().replace(/_/g, '-')
 
 const extractBasicData = (el) => {
     const img = el.find("img").attr("src")
@@ -73,7 +103,7 @@ function normalizeName(name) {
     return name.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 }
 
-const imgBasePath = "./assets/base"
+const imgBasePath = "./public/images"
 
 const init = async () => {
 
