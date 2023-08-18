@@ -77,6 +77,16 @@ export default component$(() => {
           </picture>
         })
       }
+      {
+        data.value.emblems.map((item: any, i: number) => {
+          const { avif, defaultAsset, webp } = getResourceAssets(item.img)
+          return <picture key={i}>
+            <source srcSet={avif} type="image/avif" />
+            <source srcSet={webp} type="image/webp" />
+            <img src={defaultAsset} alt="" width={100} height={100} />
+          </picture>
+        })
+      }
     </>
   );
 });
