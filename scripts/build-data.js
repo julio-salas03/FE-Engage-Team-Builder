@@ -101,11 +101,11 @@ const init = async () => {
             })
         }
 
-        const personalSkilsStartingIndex = 3
+        const personalSkillsStartingIndex = 3
 
 
-        for (let index = personalSkilsStartingIndex; index <= personalSkilsStartingIndex + 1; index++) {
-            const realIndex = index === personalSkilsStartingIndex ? personalSkilsStartingIndex : personalSkilsStartingIndex + 6
+        for (let index = personalSkillsStartingIndex; index <= personalSkillsStartingIndex + 1; index++) {
+            const realIndex = index === personalSkillsStartingIndex ? personalSkillsStartingIndex : personalSkillsStartingIndex + 6
             $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
                 const { data, img, imgName } = extractBasicData($(el))
                 const imgPath = `${imgBasePath}/skills/personal/${imgName}`
@@ -114,10 +114,10 @@ const init = async () => {
             })
         }
 
-        const classSkilsStartingIndex = 4
+        const classSkillsStartingIndex = 4
 
-        for (let index = classSkilsStartingIndex; index <= classSkilsStartingIndex + 1; index++) {
-            const realIndex = index === classSkilsStartingIndex ? classSkilsStartingIndex : classSkilsStartingIndex + 6
+        for (let index = classSkillsStartingIndex; index <= classSkillsStartingIndex + 1; index++) {
+            const realIndex = index === classSkillsStartingIndex ? classSkillsStartingIndex : classSkillsStartingIndex + 6
             $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
                 const { data, img, imgName } = extractBasicData($(el))
                 const imgPath = `${imgBasePath}/skills/class/${imgName}`
@@ -254,7 +254,7 @@ const init = async () => {
 
     const weaponTypes = ["swords", "lances", "axes", "bows", "knives", "tomes", "arts"]
     const weapons = []
-    const allEngageweapons = []
+    const allEngageWeapons = []
 
 
     for (const weaponType of weaponTypes) {
@@ -279,7 +279,7 @@ const init = async () => {
                     img: imgPath,
                     type: weaponType,
                 }
-                if (data[8].includes("wielded by Emblem") || data[8].includes("of Emblem")) return allEngageweapons.push(weapon)
+                if (data[8].includes("wielded by Emblem") || data[8].includes("of Emblem")) return allEngageWeapons.push(weapon)
                 const weaponUpgrades = weaponsUpgrades.filter((upgrade) => upgrade.weaponName === data[0])
 
                 weapons.push({
@@ -325,7 +325,7 @@ const init = async () => {
             }
 
             if (data[2] === "Engage Weapon") {
-                const foundWeapon = allEngageweapons.find((weapon) => weapon.name === data[0])
+                const foundWeapon = allEngageWeapons.find((weapon) => weapon.name === data[0])
                 if (foundWeapon) engageWeapons.push(foundWeapon)
             }
         })
