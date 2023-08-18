@@ -86,7 +86,7 @@ const init = async () => {
         const $ = cheerio.load(html.data)
         for (let index = 1; index <= 4; index++) {
             /**
-             * This allows to retreive the dlc emblems data
+             * This allows to retrieve the dlc emblems data
              */
             const realIndex = index > 2 ? index + 4 : index
             $(`table:eq(${realIndex})`).find("tr:not(:first)").each((_, el) => {
