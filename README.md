@@ -5,8 +5,4 @@ This is a team builder for Fire Emblem Engage, which aims to help you to have a 
 - Ability to save your teams via URL or exportable CSV
 - Damage calculator
 
-## Static Site Generator (Node.js)
-
-```
-npm run build.server
-```
+App URL: https://julio-salas03.github.io/FE-Engage-Team-Builder/
