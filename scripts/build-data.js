@@ -348,13 +348,13 @@ const init = async () => {
 
             if (data[2].includes("Engage Attack")) {
                 const attackPartner = data[2].includes("adjacent") ? data[2].split(" ").slice(-1)[0].replace(")", "") : null
-                const [description, ...unitTypeModifers] = data[1].split(/(?=\[[^\]]+\])/)
+                const [description, ...unitTypeModifiers] = data[1].split(/(?=\[[^\]]+\])/)
                 return attackPartner
                     ? engageAttack.link = { attackPartner, description }
                     : engageAttack.base = {
                         name: data[0],
                         description,
-                        unitTypeModifers: unitTypeModifers.map(createEngageAttackUnitTypeModifier)
+                        unitTypeModifiers: unitTypeModifiers.map(createEngageAttackUnitTypeModifier)
                     }
             }
 
