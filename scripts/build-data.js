@@ -365,7 +365,7 @@ const init = async () => {
         })
         const img = $("img").map((_, el) => $(el).attr("src")).toArray().filter((url) => url.includes(emblem.toLocaleLowerCase()))[0]
         const imgName = img ? getImgName(img) : ""
-        const imgPath = `${imgBasePath}/emblems/${imgName}/`
+        const imgPath = `${imgBasePath}/emblems/${imgName}`
         if (img) downloadImage(img, imgPath)
 
         emblems.push({
