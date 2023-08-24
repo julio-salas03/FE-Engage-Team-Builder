@@ -25,69 +25,17 @@ export const useData = routeLoader$(async () => {
 
 export default component$(() => {
   const data = useData()
+  console.log(data)
+  const character = data.value.characters[9]
   return (
-    <>
-      {
-        data.value.characters.map((item: any, i: number) => {
-          const { avif, defaultAsset, webp } = getResourceAssets(item.img)
-          return <picture key={i}>
-            <source srcSet={avif} type="image/avif" />
-            <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={100} height={100} />
-          </picture>
-        })
-      }
-      {
-        data.value.engravings.map((item: any, i: number) => {
-          const { avif, defaultAsset, webp } = getResourceAssets(item.img)
-          return <picture key={i}>
-            <source srcSet={avif} type="image/avif" />
-            <source srcSet={webp} type="image/webp" />
-            <img class="object-contain object-center" src={defaultAsset} alt="" width={45} height={45} />
-          </picture>
-        })
-      }
-      {
-        data.value.inheritableSkills.map((item: any, i: number) => {
-          const { avif, defaultAsset, webp } = getResourceAssets(item.img)
-          return <picture key={i}>
-            <source srcSet={avif} type="image/avif" />
-            <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={52} height={52} />
-          </picture>
-        })
-      }
-      {
-        data.value.synchoSkills.map((item: any, i: number) => {
-          const { avif, defaultAsset, webp } = getResourceAssets(item.img)
-          return <picture key={i}>
-            <source srcSet={avif} type="image/avif" />
-            <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={52} height={52} />
-          </picture>
-        })
-      }
-      {
-        data.value.weapons.map((item: any, i: number) => {
-          const { avif, defaultAsset, webp } = getResourceAssets(item.img)
-          return <picture key={i}>
-            <source srcSet={avif} type="image/avif" />
-            <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={64} height={64} />
-          </picture>
-        })
-      }
-      {
-        data.value.emblems.map((item: any, i: number) => {
-          const { avif, defaultAsset, webp } = getResourceAssets(item.img)
-          return <picture key={i}>
-            <source srcSet={avif} type="image/avif" />
-            <source srcSet={webp} type="image/webp" />
-            <img class="object-contain object-center" src={defaultAsset} alt="" width={56} height={56} />
-          </picture>
-        })
-      }
-    </>
+    <div>
+      <div class="absolute inset-0 bg-desktop-art bg-cover bg-center bg-no-repeat"></div>
+      <div class="relative z-50">
+        <div class="mx-auto bg-white/80 py-40 px-30">
+          <h3>{character.name}</h3>
+        </div>
+      </div>
+    </div>
   );
 });
 
