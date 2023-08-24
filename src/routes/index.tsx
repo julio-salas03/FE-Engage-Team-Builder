@@ -43,7 +43,7 @@ export default component$(() => {
           return <picture key={i}>
             <source srcSet={avif} type="image/avif" />
             <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={100} height={100} />
+            <img class="object-contain object-center" src={defaultAsset} alt="" width={45} height={45} />
           </picture>
         })
       }
@@ -53,7 +53,7 @@ export default component$(() => {
           return <picture key={i}>
             <source srcSet={avif} type="image/avif" />
             <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={100} height={100} />
+            <img src={defaultAsset} alt="" width={52} height={52} />
           </picture>
         })
       }
@@ -63,7 +63,7 @@ export default component$(() => {
           return <picture key={i}>
             <source srcSet={avif} type="image/avif" />
             <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={100} height={100} />
+            <img src={defaultAsset} alt="" width={52} height={52} />
           </picture>
         })
       }
@@ -73,7 +73,7 @@ export default component$(() => {
           return <picture key={i}>
             <source srcSet={avif} type="image/avif" />
             <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={100} height={100} />
+            <img src={defaultAsset} alt="" width={64} height={64} />
           </picture>
         })
       }
@@ -83,7 +83,7 @@ export default component$(() => {
           return <picture key={i}>
             <source srcSet={avif} type="image/avif" />
             <source srcSet={webp} type="image/webp" />
-            <img src={defaultAsset} alt="" width={100} height={100} />
+            <img class="object-contain object-center" src={defaultAsset} alt="" width={56} height={56} />
           </picture>
         })
       }
