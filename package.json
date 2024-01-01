@@ -10,10 +10,13 @@
     "format": "prettier --write --ignore-unknown .",
     "prepare": "husky install",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "gen:c": "plop --plopfile src/scripts/plop/generators/component.js"
   },
   "dependencies": {
     "husky": "^8.0.3",
+    "paths.macro": "^3.0.1",
+    "plop": "^4.0.1",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.10",
     "solid-js": "^1.8.7"

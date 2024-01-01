@@ -7,7 +7,7 @@ function App() {
     <>
       <p>count: {count()}</p>
       <button
-        class="bg-blue-500 px-4 text-red-500"
+        class="px-50 bg-blue-500 text-red-500"
         onclick={() => setCount((prev) => prev + 1)}
       >
         update
