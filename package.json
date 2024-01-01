@@ -7,9 +7,11 @@
     "dev": "vite --port 3000",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky install"
   },
   "dependencies": {
+    "husky": "^8.0.3",
     "solid-js": "^1.8.7"
   },
   "devDependencies": {
