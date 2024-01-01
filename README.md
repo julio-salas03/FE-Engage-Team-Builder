@@ -6,7 +6,7 @@ This project aims to assist players on their unit planning in the [Engage](https
 
 _Note: this project is still WIP, but these are the planned features so maybe star the project for future updates :)_
 
-* Resource calculator (e.g. SP and bond fragments)
-* Character, class, weapons and emblems selection
-* Offline mode
-* Builds sharing/saving via URL
+- Resource calculator (e.g. SP and bond fragments)
+- Character, class, weapons and emblems selection
+- Offline mode
+- Builds sharing/saving via URL
