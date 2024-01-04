@@ -4,7 +4,8 @@
 
 This project aims to assist players on their unit planning in the [Engage](https://en.wikipedia.org/wiki/Fire_Emblem_Engage) entry, which provides immersive and complex mechanics for characters customization in battle, such as skills, equipment, weapon enhancing and a long etc _(Yeah, you need to keep track of all of that!)_. These are some of the project's features:
 
-_Note: this project is still WIP, but these are the planned features so maybe star the project for future updates :)_
+> [!NOTE]
+> This project is still WIP, but these are the planned features so maybe star the project for future updates 😃
 
 - Resource calculator (e.g. SP and bond fragments)
 - Character, class, weapons and emblems selection
