@@ -7,10 +7,27 @@ const root = resolve(__dirname);
 export default defineConfig({
   plugins: [solid()],
   resolve: {
-    alias: {
-      "@components": resolve(root, "components"),
-      "@types": resolve(root, "types"),
-      "@utils": resolve(root, "utils"),
-    },
+    alias: [
+      {
+        find: "@components",
+        replacement: resolve(root, "./src/components/"),
+      },
+      {
+        find: "@lib",
+        replacement: resolve(root, "./src/lib/"),
+      },
+      {
+        find: "@types",
+        replacement: resolve(root, "./src/types/"),
+      },
+      {
+        find: "@scripts",
+        replacement: resolve(root, "./src/scripts/"),
+      },
+      {
+        find: "@src",
+        replacement: resolve(root, "./src/"),
+      },
+    ],
   },
 });

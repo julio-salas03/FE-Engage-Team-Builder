@@ -6,12 +6,7 @@ function App() {
   return (
     <>
       <p>count: {count()}</p>
-      <button
-        class="px-50 bg-blue-500 text-red-500"
-        onclick={() => setCount((prev) => prev + 1)}
-      >
-        update
-      </button>
+      <button onclick={() => setCount((prev) => prev + 1)}>update</button>
     </>
   );
 }

@@ -3,9 +3,9 @@ import { ComponentProps } from "solid-js"
 import base from 'paths.macro';
 import { atomicDir } from '@lib/helpers'
 import {{pascalCase name}}Component from './{{pascalCase name}}'
+import '@src/index.css'; 
 
 export default {
-  title: `${atomicDir(base)}/{{pascalCase name}}`,
   component: {{pascalCase name}}Component,
 } as Meta<typeof {{pascalCase name}}Component>
 
@@ -15,7 +15,7 @@ type StoryProps = ComponentProps<typeof {{pascalCase name}}Component> & ExtraPro
 const Template: StoryFn<StoryProps> = (args) => {
   const { containerWidth, ...rest } = args
   return (
-    <div class="p-20" style=\{{ 'max-width': `${containerWidth}px` }}>
+    <div class="p-5" style=\{{ 'max-width': `${containerWidth}px` }}>
       <{{pascalCase name}}Component {...rest} />
     </div>
   )
