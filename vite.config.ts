@@ -30,4 +30,5 @@ export default defineConfig({
       },
     ],
   },
+  base: "https://julio-salas03.github.io/FE-Engage-Team-Builder/",
 });
