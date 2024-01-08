@@ -1,17 +1,17 @@
-import { createSignal } from "solid-js";
+import Avatar from "@components/atoms/Avatar";
+import AvatarFallback from "@components/atoms/Avatar/AvatarFallback";
+import AvatarImage from "@components/atoms/Avatar/AvatarImage";
 
 function App() {
-  const [count, setCount] = createSignal(0);
-
   return (
     <>
-      <p>count: {count()}</p>
-      <button
-        class="px-50 bg-blue-500 text-red-500"
-        onclick={() => setCount((prev) => prev + 1)}
-      >
-        update
-      </button>
+      <Avatar>
+        <AvatarFallback name="Louis" />
+        <AvatarImage
+          src="/images/characters/big/louis.png"
+          alt="image of a knight"
+        />
+      </Avatar>
     </>
   );
 }
