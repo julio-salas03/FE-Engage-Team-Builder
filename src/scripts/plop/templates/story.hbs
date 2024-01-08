@@ -13,10 +13,9 @@ type ExtraProps = { containerWidth: number }
 type StoryProps = ComponentProps<typeof {{pascalCase name}}Component> & ExtraProps
 
 const Template: StoryFn<StoryProps> = (args) => {
-  const { containerWidth, ...rest } = args
   return (
-    <div class="p-5" style=\{{ 'max-width': `${containerWidth}px` }}>
-      <{{pascalCase name}}Component {...rest} />
+    <div class="p-5" style=\{{ 'max-width': `${args.containerWidth}px` }}>
+      <{{pascalCase name}}Component {...args} />
     </div>
   )
 }
