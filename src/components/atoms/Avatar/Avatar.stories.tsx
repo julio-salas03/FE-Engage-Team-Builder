@@ -12,15 +12,15 @@ export default {
 type ExtraProps = { containerWidth: number };
 type StoryProps = ComponentProps<typeof AvatarComponent> &
   ComponentProps<typeof AvatarImage> &
+  ComponentProps<typeof AvatarFallback> &
   ExtraProps;
 
 const Template: StoryFn<StoryProps> = (args) => {
-  const { containerWidth, src } = args;
   return (
-    <div class="p-5" style={{ "max-width": `${containerWidth}px` }}>
+    <div class="p-5" style={{ "max-width": `${args.containerWidth}px` }}>
       <AvatarComponent>
-        <AvatarFallback name="Hubert Lambert" />
-        <AvatarImage src={src} alt="Hubert Lambert" />
+        <AvatarFallback name={args.name} />
+        <AvatarImage src={args.src} alt={args.alt} />
       </AvatarComponent>
     </div>
   );
@@ -33,4 +33,6 @@ Avatar.args = {
   // Extra Props
   containerWidth: 1000,
   src: "https://cdn-icons-png.flaticon.com/512/2919/2919906.png",
+  alt: "Hubert Lambert",
+  name: "Hubert Lambert",
 };
