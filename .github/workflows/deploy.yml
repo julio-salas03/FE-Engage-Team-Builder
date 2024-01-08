@@ -21,16 +21,14 @@ jobs:
       - name: "Checkout Code"
         uses: actions/checkout@v3
 
-      - name: "Setup Node"
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
+      - name: "Install Bun"
+        run: |
+          curl -fsSL https://bun.sh/install | bash
 
       - name: "Build App"
         run: |
-          npm ci
-          npm run build
-          npm run build.server
+          bun install
+          bun run build
 
       - name: "Setup Pages"
         uses: actions/configure-pages@v3
