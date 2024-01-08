@@ -24,7 +24,7 @@ jobs:
       - name: "Install Bun"
         run: |
           curl -fsSL https://bun.sh/install | bash
-          source /home/runner/.bashrc
+          source /usr/bin/bash
 
       - name: "Build App"
         run: |
