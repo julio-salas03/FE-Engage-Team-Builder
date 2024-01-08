@@ -1,7 +1,8 @@
-import { Show } from "solid-js";
+import { Show, JSX } from "solid-js";
 import { ImageLoadingStatus, useAvatarContext } from "./const";
+import classNames from "classnames";
 
-export type AvatarFallbackProps = {
+export type AvatarFallbackProps = JSX.HTMLAttributes<HTMLSpanElement> & {
   name: string;
 };
 
@@ -15,7 +16,13 @@ const AvatarFallback = (props: AvatarFallbackProps) => {
   };
   return (
     <Show when={hasNotLoaded()}>
-      <span class="flex items-center justify-center uppercase">
+      <span
+        {...props}
+        class={classNames(
+          "flex items-center justify-center uppercase",
+          props.class,
+        )}
+      >
         {getFallback()}
       </span>
     </Show>

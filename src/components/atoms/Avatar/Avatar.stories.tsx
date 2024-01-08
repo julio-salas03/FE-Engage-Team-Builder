@@ -20,7 +20,7 @@ const Template: StoryFn<StoryProps> = (args) => {
     <div class="p-5" style={{ "max-width": `${containerWidth}px` }}>
       <AvatarComponent>
         <AvatarFallback name="Hubert Lambert" />
-        <AvatarImage src={src} />
+        <AvatarImage src={src} alt="Hubert Lambert" />
       </AvatarComponent>
     </div>
   );

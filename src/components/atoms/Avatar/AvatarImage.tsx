@@ -1,8 +1,9 @@
-import { Show, createEffect } from "solid-js";
+import { Show, createEffect, JSX } from "solid-js";
 import { ImageLoadingStatus, useAvatarContext } from "./const";
+import classNames from "classnames";
 
-export type AvatarImageProps = {
-  src: string;
+export type AvatarImageProps = JSX.ImgHTMLAttributes<HTMLImageElement> & {
+  alt: string;
 };
 
 const AvatarImage = (props: AvatarImageProps) => {
@@ -28,7 +29,12 @@ const AvatarImage = (props: AvatarImageProps) => {
 
   return (
     <Show when={hasLoaded()}>
-      <img src={props.src} alt="Avatar" />
+      <img
+        {...props}
+        class={classNames("object-cover object-center", props.class)}
+        src={props.src}
+        alt={props.alt}
+      />
     </Show>
   );
 };

@@ -17,6 +17,7 @@
   "dependencies": {
     "axios": "^1.6.3",
     "cheerio": "^1.0.0-rc.12",
+    "classnames": "^2.5.1",
     "husky": "^8.0.3",
     "paths.macro": "^3.0.1",
     "plop": "^4.0.1",
