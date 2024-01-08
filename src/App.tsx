@@ -4,7 +4,7 @@ import AvatarImage from "@components/atoms/Avatar/AvatarImage";
 
 function App() {
   return (
-    <>
+    <main>
       <Avatar>
         <AvatarFallback name="Louis" />
         <AvatarImage
@@ -12,7 +12,7 @@ function App() {
           alt="image of a knight"
         />
       </Avatar>
-    </>
+    </main>
   );
 }
 
