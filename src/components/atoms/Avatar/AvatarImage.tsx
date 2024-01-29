@@ -1,30 +1,45 @@
-import { Show, createEffect, JSX } from "solid-js";
+import { Show, createEffect, JSX, createSignal } from "solid-js";
 import { ImageLoadingStatus, useAvatarContext } from "./const";
 import classNames from "classnames";
 
 export type AvatarImageProps = JSX.ImgHTMLAttributes<HTMLImageElement> & {
   alt: string;
+  src: string;
 };
 
 const AvatarImage = (props: AvatarImageProps) => {
   const { loadingStatus, updateLoadingState } = useAvatarContext();
   const hasLoaded = () => loadingStatus() === ImageLoadingStatus.LOADED;
+  const [getSrc, setSrc] = createSignal("");
 
   createEffect(() => {
     if (!props.src) {
       updateLoadingState(ImageLoadingStatus.ERROR);
       return;
     }
+    async function handleLoad() {
+      try {
+        const cache = await window.caches.open(props.src);
+        const cacheImg = await cache.match(props.src);
 
-    const image = new Image();
+        if (!cacheImg) {
+          const response = await fetch(props.src);
+          await cache.put(props.src, response);
+          const cacheImg = await cache.match(props.src);
+          const img = await cacheImg?.blob();
+          setSrc(URL.createObjectURL(img as Blob));
+          updateLoadingState(ImageLoadingStatus.LOADED);
+          return;
+        }
+        const img = await cacheImg.blob();
+        setSrc(URL.createObjectURL(img));
+        updateLoadingState(ImageLoadingStatus.LOADED);
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
-    image.onload = () => {
-      updateLoadingState(ImageLoadingStatus.LOADED);
-    };
-    image.onerror = () => {
-      updateLoadingState(ImageLoadingStatus.ERROR);
-    };
-    image.src = props.src;
+    handleLoad();
   });
 
   return (
@@ -32,7 +47,7 @@ const AvatarImage = (props: AvatarImageProps) => {
       <img
         {...props}
         class={classNames("object-cover object-center", props.class)}
-        src={props.src}
+        src={getSrc()}
         alt={props.alt}
       />
     </Show>

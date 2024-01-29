@@ -32,7 +32,7 @@ Avatar.args = {
   // Component Props
   // Extra Props
   containerWidth: 1000,
-  src: "https://cdn-icons-png.flaticon.com/512/2919/2919906.png",
+  src: "/images/characters/big/chloe.png",
   alt: "Hubert Lambert",
   name: "Hubert Lambert",
 };

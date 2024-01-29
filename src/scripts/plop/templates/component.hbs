@@ -2,12 +2,10 @@ export type {{pascalCase name}}Props = {
   content?: string
 }
 
-const {{pascalCase name}} = ({
-  content = '{{pascalCase name}} Component',
-}:{{pascalCase name}}Props) => {
+const {{pascalCase name}} = (props:{{pascalCase name}}Props) => {
   return (
     <div class="w-full bg-crimson">
-      <h1 class="heading-xxl text-center">{content}</h1>
+      <h1 class="heading-xxl text-center">{props.content}</h1>
     </div>
   )
 }
